@@ -1,0 +1,14 @@
+{
+  "data": {
+    "contentTypes": [
+      { "key": "page", "name": "Page", "description": null, "isGlobal": false, "fields": [
+        { "key": "title", "name": "Title", "type": "text", "required": true, "description": null, "options": null, "allowedComponents": null, "allowedContentTypes": null, "taxonomy": null, "validation": null, "showWhen": null }
+      ] }
+    ],
+    "components": [
+      { "key": "hero", "name": "Hero", "description": null, "group": "Layout", "allowedChildren": "*", "fields": [
+        { "key": "style", "name": "Style", "type": "select", "required": false, "description": null, "options": [{ "label": "Light", "value": "light" }], "allowedComponents": null, "allowedContentTypes": null, "taxonomy": null, "validation": null, "showWhen": { "field": "mode", "equals": ["a", "b"] } }
+      ] }
+    ]
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "data": {
+    "url": "/services/consultations",
+    "name": "Consultations",
+    "contentType": "page",
+    "locale": "en-IE",
+    "region": "ireland",
+    "requestedLocale": "ga-IE",
+    "requestedRegion": "ireland",
+    "fallbackApplied": true,
+    "regionFallbackApplied": false,
+    "draft": false,
+    "publishedAt": "2026-10-01T09:30:00.000Z",
+    "version": 7,
+    "fields": {
+      "title": "Book a consultation",
+      "heroImage": { "id": "6650c1", "url": "https://cdn.example.com/uploads/hero.jpg", "mimeType": "image/jpeg", "width": 1600, "height": 900, "alt": "A treatment room", "title": null, "subtitles": null }
+    },
+    "components": [
+      {
+        "id": "c1",
+        "type": "card-grid",
+        "schemaVersion": 3,
+        "fields": {
+          "heading": "Our services",
+          "cards": [
+            {
+              "id": "c2",
+              "type": "card",
+              "schemaVersion": 2,
+              "fields": {
+                "title": "Consultations",
+                "link": { "kind": "url", "href": "/services/consultations", "contentId": null, "assetId": null, "label": null, "target": null }
+              },
+              "children": {},
+              "variant": null
+            }
+          ]
+        },
+        "children": {
+          "cards": [
+            { "id": "c2", "type": "card", "schemaVersion": 2, "fields": { "title": "Consultations" }, "children": {}, "variant": null }
+          ]
+        },
+        "variant": "wide",
+        "futureProperty": true
+      }
+    ],
+    "seo": {
+      "title": "Consultations | Acme Clinic",
+      "description": "Book a free consultation.",
+      "canonical": "https://www.example.com/ie/services/consultations",
+      "robots": { "index": true, "follow": true },
+      "openGraph": { "type": "website", "title": "Consultations", "description": "Book a free consultation.", "url": "https://www.example.com/ie/services/consultations", "siteName": "Acme Clinic", "locale": "en_IE", "image": null },
+      "twitter": { "card": "summary_large_image", "site": null, "title": "Consultations", "description": "Book a free consultation.", "image": null },
+      "verification": { "google": null, "bing": null },
+      "alternates": [{ "hreflang": "en-IE", "href": "https://www.example.com/ie/services/consultations" }],
+      "breadcrumbs": [{ "name": "Services", "url": "https://www.example.com/ie/services" }],
+      "jsonLd": [{ "@type": "WebPage", "name": "Consultations" }]
+    }
+  }
+}

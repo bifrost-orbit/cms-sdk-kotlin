@@ -1,0 +1,6 @@
+{
+  "data": [
+    { "key": "ireland", "name": "Ireland", "locales": [{ "code": "en-IE", "name": "English (Ireland)", "isDefault": true }, { "code": "ga-IE", "name": "Irish", "isDefault": false }] },
+    { "key": "uk", "name": "United Kingdom", "locales": [{ "code": "en-GB", "name": "English (United Kingdom)", "isDefault": true }] }
+  ]
+}

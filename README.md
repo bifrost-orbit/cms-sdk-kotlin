@@ -1,6 +1,6 @@
 # CMS Orbit SDK for Kotlin
 
-The Kotlin SDK, `com.bifrostorbit:cms-sdk`, reads published content from the [delivery API](https://docs.bifrostorbit.com/cms/developers/delivery-api) in Android apps and on JVM servers, such as Ktor or Spring Boot. It does what the client in the [JavaScript SDK](https://docs.bifrostorbit.com/cms/developers/sdk) does: pages, redirects, menus, site-wide content, lists, banners, popups, products, sitemaps and the schema, with the same retries and errors. It is open source under the MIT licence.
+The Kotlin SDK, `com.bifrostorbit:cms-sdk`, reads published content from the [delivery API](https://docs.bifrostorbit.com/cms/developers/delivery-api/) in Android apps and on JVM servers, such as Ktor or Spring Boot. It does what the client in the [JavaScript SDK](https://docs.bifrostorbit.com/cms/developers/sdk/) does: pages, redirects, menus, site-wide content, lists, banners, popups, products, sitemaps and the schema, with the same retries and errors. It is open source under the MIT licence.
 
 - Suspend functions for Kotlin coroutines, and `CompletableFuture`s for Java.
 - Built on OkHttp and kotlinx.serialization. Bring your own `OkHttpClient` to share its connection pool and interceptors.
@@ -10,6 +10,8 @@ The Kotlin SDK, `com.bifrostorbit:cms-sdk`, reads published content from the [de
 
 It needs Java 11 or later on servers, and Android 5.0 (API 21) or later in apps. The Java futures need Android 7.0 (API 24). Kotlin projects need Kotlin 2.2 or later.
 
+The package is [`com.bifrostorbit:cms-sdk` on Maven Central](https://central.sonatype.com/artifact/com.bifrostorbit/cms-sdk), where you can see the latest version.
+
 ```kotlin
 // build.gradle.kts
 plugins {
@@ -17,7 +19,7 @@ plugins {
 }
 
 dependencies {
-    implementation("com.bifrostorbit:cms-sdk:0.1.0")
+    implementation("com.bifrostorbit:cms-sdk:0.2.0")
 }
 ```
 
@@ -27,7 +29,7 @@ With Maven:
 <dependency>
   <groupId>com.bifrostorbit</groupId>
   <artifactId>cms-sdk</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
 </dependency>
 ```
 
@@ -41,7 +43,7 @@ Create a public key in **Configuration › API keys**. It starts with `cms_pk_` 
 import com.bifrostorbit.cms.CmsOrbitClient
 
 val cms = CmsOrbitClient("cms_pk_...") {
-    defaultRegion = "ireland"
+    defaultRegion = "germany"
 }
 ```
 
@@ -49,7 +51,7 @@ In Java:
 
 ```java
 CmsOrbitClient cms = CmsOrbitClient.builder("cms_pk_...")
-    .defaultRegion("ireland")
+    .defaultRegion("germany")
     .build();
 ```
 
@@ -76,8 +78,8 @@ A secret key reads drafts, so anyone who has it can read unpublished content. Th
 Every method is a suspend function. Call it from a coroutine, such as `viewModelScope.launch` on Android or a Ktor route.
 
 ```kotlin
-val result = cms.resolve("/services/consultations")
-val page = cms.getPage("/services/consultations", RequestOptions(locale = "en-IE"))
+val result = cms.resolve("/gear/fjell-gtx-boot")
+val page = cms.getPage("/gear/fjell-gtx-boot", RequestOptions(locale = "de-DE"))
 val header = cms.getNavigation("header")
 val footer = cms.getGlobal("footer")
 val articles = cms.list(ListOptions(type = "article", sort = CmsSort.PUBLISHED_AT_DESC, perPage = 12))
@@ -96,26 +98,29 @@ val articles = cms.list(ListOptions(type = "article", sort = CmsSort.PUBLISHED_A
 | `getRegions()`, `getLocales(region)` | The regions and languages the key may read |
 | `getSitemapIndex()`, `getSitemap(region, locale, page)`, `getRobots()` | Sitemaps and robots rules |
 | `getProducts(page, perPage, filter, options)`, `getTaxonomy(key, locale)` | Shop products with live prices, and taxonomy terms |
-| `graphql(query, variables, operationName, preview)` | Any [GraphQL](https://docs.bifrostorbit.com/cms/developers/graphql) query, as a `JsonElement`. `graphqlAs<T>(…)` decodes it. |
+| `graphql(query, variables, operationName, preview)` | Any [GraphQL](https://docs.bifrostorbit.com/cms/developers/graphql/) query, as a `JsonElement`. `graphqlAs<T>(…)` decodes it. |
 | `getSchema()` | Content types and components |
 | `verifyPreviewToken(token)` | The entry a preview link is for. See [Preview](#preview). |
 
-`RequestOptions` holds `region`, `locale`, `preview`, `strict` and `includeReferences`. `ListOptions` adds `type`, `page`, `perPage`, `filter`, `tag`, `category`, `sort`, `q` and `includeFields`. From Java, build them with `new RequestOptions().withRegion("ie")` and `new ListOptions("article").withPerPage(12)`.
+`RequestOptions` holds `region`, `locale`, `preview`, `strict` and `includeReferences`. `ListOptions` adds `type`, `page`, `perPage`, `filter`, `tag`, `category`, `sort`, `q` and `includeFields`. From Java, build them with `new RequestOptions().withRegion("de")` and `new ListOptions("article").withPerPage(12)`.
 
-A page has `meta`, which says which region and language answered and whether a fallback was used, so an app can show a notice such as "This page is not available in Irish yet."
+A page has `meta`, which says which region and language answered and whether a fallback was used, so an app can show a notice such as "This page is not available in English yet."
 
 ### From Java
 
 `cms.getAsync()` has the same methods, each answering with a `CompletableFuture`. Call `join()` to wait for the answer on a server, or chain `thenAccept` to stay off the calling thread. Cancelling a future cancels its request.
 
 ```java
-CmsResolution result = cms.getAsync().resolve("/services/consultations").join();
-if (result instanceof CmsResolution.Page page) {
-    System.out.println(page.getPage().getName());
-} else if (result instanceof CmsResolution.Redirect redirect) {
-    response.sendRedirect(redirect.getTo());
+CmsResolution result = cms.getAsync().resolve("/gear/fjell-gtx-boot").join();
+if (result instanceof CmsResolution.Page) {
+    CmsPage page = ((CmsResolution.Page) result).getPage();
+    System.out.println(page.getName());
+} else if (result instanceof CmsResolution.Redirect) {
+    response.sendRedirect(((CmsResolution.Redirect) result).getTo());
 }
 ```
+
+A failed call completes the future with a `CompletionException` from `join()`, whose `getCause()` is one of the SDK's exceptions.
 
 ## Your own types
 
@@ -185,8 +190,18 @@ class PageViewModel(private val cms: CmsOrbitClient) : ViewModel() {
 
 - `AsyncImage` is from [Coil](https://coil-kt.github.io/coil/). `CmsImages.url` asks the CMS for an image resized to the width you show it at, and `CmsImages.widths` lists the sizes on offer.
 - Rich text fields are HTML. `AnnotatedString.fromHtml` in Compose 1.7 shows headings, bold, italics and links; for tables and embeds, use a `WebView`.
-- Blocks in a slot are on the slot's field and in `children`, as in [Render components](https://docs.bifrostorbit.com/cms/developers/render-blocks). Decode a Components field as `List<CmsComponent>` and pass it to `CmsBlocks` again.
+- Blocks in a slot are on the slot's field and in `children`, as in [Render components](https://docs.bifrostorbit.com/cms/developers/render-blocks/). Decode a Components field as `List<CmsComponent>` and pass it to `CmsBlocks` again.
 - An unknown block type draws nothing, so an app that is not yet updated keeps working when editors add a component.
+
+## Insights Orbit
+
+Pages carry `id`, the entry's id, and `insights`, a `CmsInsightsSite` when the space is connected to Insights Orbit, both `null` otherwise. On a server that renders HTML, `CmsInsights.tags(page)` writes the script with the site key and `<meta name="insights-content">` with the entry's id, or an empty string without a site key:
+
+```kotlin
+val head = CmsInsights.tags(page, src = "/stats/script.js", api = "/stats/collect")
+```
+
+It takes `site`, `contentId`, `src`, `api`, `disable`, `campaigns` and `waitForConsent`, like `CmsInsights` in the JavaScript SDK.
 
 ## Preview
 
@@ -209,7 +224,26 @@ get("/api/preview") {
 }
 ```
 
-Only redirect to addresses on your own website. Asking for a preview without a `previewKey` throws an `IllegalStateException` before any request is sent. See [Set up the live preview](https://docs.bifrostorbit.com/cms/developers/preview).
+Only redirect to addresses on your own website. Asking for a preview without a `previewKey` throws an `IllegalStateException` before any request is sent. See [Set up the live preview](https://docs.bifrostorbit.com/cms/developers/preview/).
+
+## Webhooks
+
+[Publish webhooks](https://docs.bifrostorbit.com/cms/developers/webhooks/) are signed. On a JVM server, `CmsWebhook.parse` checks the signature and the timestamp and answers the message, or `null` when it is not genuine or is more than five minutes old. Pass the raw body, before any JSON parsing. With Ktor:
+
+```kotlin
+post("/api/cms-webhook") {
+    val message = CmsWebhook.parse(
+        System.getenv("CMS_WEBHOOK_SECRET"),
+        call.request.headers[CmsWebhook.TIMESTAMP_HEADER].orEmpty(),
+        call.request.headers[CmsWebhook.SIGNATURE_HEADER].orEmpty(),
+        call.receive<ByteArray>(),
+    ) ?: return@post call.respond(HttpStatusCode.Unauthorized)
+    call.respond(HttpStatusCode.NoContent)
+    if (message.event != "webhook.test") pageCache.invalidateAll()
+}
+```
+
+`CmsWebhook.verify(secret, timestamp, signature, body)` answers only `true` or `false`. Both take the body as a `String` or a `ByteArray`, use the whole secret, including `whsec_`, and throw `IllegalArgumentException` when the secret is empty. From Java they are static: `CmsWebhook.verify(secret, timestamp, signature, body)`.
 
 ## Errors
 
@@ -219,6 +253,7 @@ Failed calls throw a `CmsOrbitException`, or one of its kinds. Each has the HTTP
 | --- | --- |
 | `CmsNotFoundException` | Nothing published at the address, or no menu, global entry, taxonomy, region or language with that key |
 | `CmsUnauthorizedException` | A missing, unknown, expired or refused key, a public key asking for drafts, or a region or language the key may not read |
+| `CmsSubscriptionInactiveException` | The organisation's CMS Orbit trial or plan has ended, so delivery is paused (`402`). Not retried. |
 | `CmsRateLimitedException` | Too many requests. `retryAfter` is the number of seconds to wait. |
 | `CmsServerException` | The CMS failed, could not be reached or did not answer in time, after every retry |
 | `CmsDecodingException` | The answer, or your own type, could not be decoded |
@@ -226,9 +261,11 @@ Failed calls throw a `CmsOrbitException`, or one of its kinds. Each has the HTTP
 
 Network errors and server errors are retried twice with back-off, and each attempt times out after 5 seconds. Client errors are never retried. Cancelling the coroutine cancels the request.
 
+When your organisation's CMS Orbit trial or plan has ended, delivery is paused: every call throws `CmsSubscriptionInactiveException` (status `402`, code `subscription_inactive`) straight away, without retrying, whatever code the API sends. Catch it, keep showing what the app or website already has, and show a calm "temporarily unavailable" message where there is nothing. Nothing is deleted, and content comes back as soon as an owner chooses a plan.
+
 ## Caching
 
-The client does not cache answers. The API's `Cache-Control` is meant for shared caches such as a CDN (`s-maxage`), so OkHttp's own cache does not keep them; see Caching in the [delivery API](https://docs.bifrostorbit.com/cms/developers/delivery-api). In an app, keep what you show in memory or in a local database, and read it again when the app returns to the foreground. On a server, keep answers for about a minute, or refresh them when [publish webhooks](https://docs.bifrostorbit.com/cms/developers/webhooks) arrive.
+The client does not cache answers. The API's `Cache-Control` is meant for shared caches such as a CDN (`s-maxage`), so OkHttp's own cache does not keep them; see Caching in the [delivery API](https://docs.bifrostorbit.com/cms/developers/delivery-api/). In an app, keep what you show in memory or in a local database, and read it again when the app returns to the foreground. On a server, keep answers for about a minute, or refresh them when [publish webhooks](https://docs.bifrostorbit.com/cms/developers/webhooks/) arrive.
 
 ## Images
 

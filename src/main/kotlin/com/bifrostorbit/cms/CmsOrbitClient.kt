@@ -30,8 +30,8 @@ import kotlin.time.Duration
  * Reads published content, and drafts for previews, from the CMS Orbit delivery API.
  *
  * ```
- * val cms = CmsOrbitClient("cms_pk_...") { defaultRegion = "ireland" }
- * val result = cms.resolve("/services/consultations")
+ * val cms = CmsOrbitClient("cms_pk_...") { defaultRegion = "germany" }
+ * val result = cms.resolve("/gear/fjell-gtx-boot")
  * ```
  *
  * Every call is a suspend function. Java callers use [async], which answers with `CompletableFuture`s.
@@ -383,6 +383,7 @@ public class CmsOrbitClient private constructor(builder: Builder) {
         val message = (first?.get("message") as? JsonPrimitive)?.contentOrNull
         when {
             response.code == 401 -> throw CmsUnauthorizedException(message ?: "The API key was refused")
+            response.code == 402 -> throw CmsSubscriptionInactiveException()
             response.code == 429 -> throw CmsRateLimitedException(message ?: "Too many requests", retryAfter(response.retryAfter))
             response.code >= 500 -> throw CmsServerException(message ?: "The CMS returned ${response.code}", response.code)
             first != null -> {
@@ -487,6 +488,7 @@ public class CmsOrbitClient private constructor(builder: Builder) {
                 }
                 response.code == 401 -> throw CmsUnauthorizedException(message)
                 response.code == 404 -> throw CmsNotFoundException(message)
+                response.code == 402 -> throw CmsSubscriptionInactiveException()
                 response.code == 429 -> throw CmsRateLimitedException(message, retryAfter(response.retryAfter))
                 else -> throw CmsOrbitException(response.code, error?.first ?: "error", message)
             }

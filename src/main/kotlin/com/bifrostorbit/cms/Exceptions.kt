@@ -14,6 +14,11 @@ public class CmsUnauthorizedException(message: String) : CmsOrbitException(401, 
 /** Nothing published at the address, or no menu, global entry, taxonomy, region or language with that key. */
 public class CmsNotFoundException(message: String) : CmsOrbitException(404, "not_found", message)
 
+/** The organisation's CMS Orbit trial or plan has ended, so delivery is paused. Never retried. */
+public class CmsSubscriptionInactiveException(
+    message: String = "Delivery is paused because the organisation's CMS Orbit trial or plan has ended. Nothing is deleted, and it comes back as soon as an owner chooses a plan.",
+) : CmsOrbitException(402, "subscription_inactive", message)
+
 /** Too many requests. [retryAfter] is the number of seconds to wait. */
 public class CmsRateLimitedException(message: String, public val retryAfter: Int) :
     CmsOrbitException(429, "rate_limited", message)

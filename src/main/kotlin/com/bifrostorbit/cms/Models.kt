@@ -17,6 +17,105 @@ public data class CmsImage(
     val alt: String = "",
     val title: String? = null,
     val subtitles: String? = null,
+    val focalPoint: CmsFocalPoint? = null,
+)
+
+/** The point to keep in view when an image is cut to fit, from 0 to 1 across and down. */
+@Serializable
+public data class CmsFocalPoint(val x: Double, val y: Double)
+
+/** A picture of a trip or destination from Travel Orbit. */
+@Serializable
+public data class CmsTravelImage(val url: String, val alt: String = "")
+
+/** One departure of a Travel Orbit trip. Prices are in minor units, such as cents. */
+@Serializable
+public data class CmsTripDeparture(
+    val id: String,
+    val startDate: String,
+    val endDate: String? = null,
+    val status: String = "open",
+    val placesLeft: Int? = null,
+    val guaranteed: Boolean = false,
+    val priceFrom: Long? = null,
+    val currency: String = "",
+    val bookingUrl: String? = null,
+)
+
+/** A Trip or Trips field: a trip from Travel Orbit with its live price and next departures. */
+@Serializable
+public data class CmsTrip(
+    val id: String,
+    val slug: String? = null,
+    val name: String,
+    val summary: String = "",
+    val image: CmsTravelImage? = null,
+    val days: Int? = null,
+    val priceFrom: Long? = null,
+    val currency: String? = null,
+    val pricesFrom: Map<String, Long> = emptyMap(),
+    val tripCurrency: String? = null,
+    val url: String? = null,
+    val nextDepartures: List<CmsTripDeparture> = emptyList(),
+    val guaranteed: Boolean = false,
+    val available: Boolean = false,
+    val images: List<CmsTravelImage> = emptyList(),
+    val activities: List<String> = emptyList(),
+    val countries: List<String> = emptyList(),
+    val areas: List<String> = emptyList(),
+    val difficulty: String? = null,
+    val currencies: List<String> = emptyList(),
+    val bookingMode: String? = null,
+    val details: CmsTripDetails? = null,
+)
+
+/** The trip's full description, itinerary and guides, on the page that picks it. */
+@Serializable
+public data class CmsTripDetails(
+    val description: String = "",
+    val highlights: List<String> = emptyList(),
+    val included: List<String> = emptyList(),
+    val notIncluded: List<String> = emptyList(),
+    val itinerary: List<Day> = emptyList(),
+    val guides: List<Guide> = emptyList(),
+) {
+    @Serializable
+    public data class Day(val id: String, val title: String, val body: String = "", val distanceKm: Double? = null, val location: Location? = null, val stay: String? = null)
+
+    @Serializable
+    public data class Location(val lat: Double, val lng: Double)
+
+    @Serializable
+    public data class Guide(val name: String, val role: String = "", val bio: String = "", val photo: CmsTravelImage? = null, val languages: List<String> = emptyList())
+}
+
+/** A Destination field: a country or continent from Travel Orbit. */
+@Serializable
+public data class CmsDestination(
+    val code: String,
+    val name: String,
+    val kind: String,
+    val tagline: String? = null,
+    val image: CmsTravelImage? = null,
+    val tripCount: Int? = null,
+    val url: String? = null,
+)
+
+/** A Departure field: one date of a Travel Orbit trip. */
+@Serializable
+public data class CmsDeparture(
+    val id: String,
+    val startDate: String,
+    val endDate: String? = null,
+    val status: String = "closed",
+    val placesLeft: Int? = null,
+    val guaranteed: Boolean = false,
+    val priceFrom: Long? = null,
+    val currency: String = "",
+    val bookingUrl: String? = null,
+    val tripId: String,
+    val tripName: String,
+    val tripUrl: String? = null,
 )
 
 /** A Link field. [href] is the address to use, already worked out for links to pages and files. */
@@ -28,6 +127,15 @@ public data class CmsLink(
     val assetId: String? = null,
     val label: String? = null,
     val target: String? = null,
+    val travel: CmsTravelLink? = null,
+)
+
+/** The trip (its id), destination (its country code or continent, with [kind]) or guide (their address name) a link points at. */
+@Serializable
+public data class CmsTravelLink(
+    val id: String,
+    val name: String,
+    val kind: String? = null,
 )
 
 /** An entry a Reference or References field points at, when read with `includeReferences`. */
@@ -135,7 +243,11 @@ public data class CmsPageMeta(
 @Serializable
 public data class CmsExpired(val message: String)
 
-/** A page, as `/content` and `/resolve` deliver it. */
+/** The Insights Orbit site a page's space is connected to, with the [site] key for the script. */
+@Serializable
+public data class CmsInsightsSite(val site: String)
+
+/** A page, as `/content` and `/resolve` deliver it. [id] and [insights] are `null` from CMS Orbit versions that do not send them. */
 @Serializable
 public data class CmsPage(
     val url: String,
@@ -163,6 +275,9 @@ public data class CmsPage(
         regionFallbackApplied = regionFallbackApplied,
         draft = draft,
     ),
+    // [EXPLAIN-D270]
+    val id: String? = null,
+    val insights: CmsInsightsSite? = null,
 ) {
     public inline fun <reified T> decodeFields(): T = CmsJson.decode(fields)
     public fun <T> decodeFields(serializer: KSerializer<T>): T = CmsJson.decode(serializer, fields)
@@ -391,7 +506,7 @@ public data class CmsProduct(
     val slug: String,
     val url: String? = null,
     val name: String,
-    val phorestId: String? = null,
+    val catalogId: String? = null,
     val size: String? = null,
     val price: Double? = null,
     val currency: String? = null,

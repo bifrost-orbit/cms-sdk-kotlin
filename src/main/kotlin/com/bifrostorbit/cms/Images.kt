@@ -7,7 +7,7 @@ public enum class CmsImageFormat(internal val value: String) { WEBP("webp"), AVI
 
 /** Image addresses for CMS uploads, resized and converted on the fly. */
 public object CmsImages {
-    private val srcSetWidths = listOf(640, 960, 1280, 1920)
+    private val srcSetWidths = listOf(320, 480, 640, 768, 960, 1280, 1600, 1920)
 
     /** The address of [url] resized to [width] pixels and converted to [format]. Addresses outside CMS uploads are returned as they are. */
     @JvmStatic

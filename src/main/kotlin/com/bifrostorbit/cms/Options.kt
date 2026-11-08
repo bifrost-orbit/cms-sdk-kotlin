@@ -3,8 +3,8 @@ package com.bifrostorbit.cms
 /**
  * Options most calls take.
  *
- * @property region Region key or short code, such as `ireland` or `ie`. Defaults to the client's `defaultRegion`.
- * @property locale Language code, such as `en-IE`. Defaults to the client's `defaultLocale`, then the region's own language.
+ * @property region Region key or short code, such as `germany` or `de`. Defaults to the client's `defaultRegion`.
+ * @property locale Language code, such as `de-DE`. Defaults to the client's `defaultLocale`, then the region's own language.
  * @property preview Read drafts with the client's preview key.
  * @property strict Refuse every fallback: the content must exist in the language and region asked for.
  * @property includeReferences Replace Reference and References fields with the entries they point at.
@@ -42,7 +42,7 @@ public enum class CmsSort(public val value: String) {
 /**
  * Options for [CmsOrbitClient.list].
  *
- * @property type The content type key, such as `treatment`.
+ * @property type The content type key, such as `product`.
  * @property perPage 1 to 100. 20 when not set.
  * @property filter Exact matches on fields, sent as `filter[<field>]=<value>`.
  * @property q Entries whose name contains this text, ignoring case.
